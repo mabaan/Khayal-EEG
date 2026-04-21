@@ -1,0 +1,19 @@
+{
+  "onboarding": [
+    "Welcome to Khayal Local.",
+    "This app runs fully on your machine.",
+    "Before Session decoding, we need your personal Stage 1 model.",
+    "Follow calibration to upload raw EDF files, then train your profile."
+  ],
+  "calibration_steps": [
+    "Sit still and reduce movement artifacts.",
+    "Follow each sentence prompt exactly in order.",
+    "For each word event, wait during rest and stimulus, then imagine during the imagination phase.",
+    "Upload the raw EDF files after recording."
+  ],
+  "session_notes": [
+    "Session mode supports EDF upload or simulated replay.",
+    "Live EEG streaming is not enabled in v1.",
+    "Prediction uses fixed Diff-E + Retrieval + Qwen pipeline."
+  ]
+}

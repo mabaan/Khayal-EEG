@@ -1,0 +1,41 @@
+{
+  "app_name": "Khayal Local",
+  "ports": {
+    "next": 3000,
+    "python_service": 8001,
+    "ollama": 11434
+  },
+  "paths": {
+    "storage_root": "storage",
+    "base_model": "storage/base_models/diff_e_base.pt"
+  },
+  "protocol": {
+    "sampling_rate_hz": 256,
+    "rest_seconds": 5,
+    "stimulus_seconds": 5,
+    "imagination_seconds": 6,
+    "discard_seconds": 0.5,
+    "keep_seconds": 5.5,
+    "word_windows": [
+      { "slot": 1, "imagination": [10.0, 16.0], "keep": [10.5, 16.0] },
+      { "slot": 2, "imagination": [26.0, 32.0], "keep": [26.5, 32.0] },
+      { "slot": 3, "imagination": [42.0, 48.0], "keep": [42.5, 48.0] }
+    ]
+  },
+  "calibration": {
+    "starter_repetitions": 3,
+    "full_repetitions": 10
+  },
+  "stage2": {
+    "ollama_base_url": "http://127.0.0.1:11434",
+    "ollama_model": "qwen2.5:7b-instruct",
+    "deterministic_temperature": 0.0,
+    "top_k": 4,
+    "fallback_strategy": "first_retrieved_candidate"
+  },
+  "simulation": {
+    "enabled": true,
+    "tick_ms": 400,
+    "channels": 14
+  }
+}

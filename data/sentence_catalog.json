@@ -1,0 +1,88 @@
+{
+  "sentence_catalog": [
+    {
+      "sentence_id": 1,
+      "arabic": "المريض يشعر بالجوع",
+      "english": "The patient feels hungry",
+      "word_ids": [1, 2, 3],
+      "word_tokens": ["المريض", "يشعر", "بالجوع"]
+    },
+    {
+      "sentence_id": 2,
+      "arabic": "المريض يشعر بالألم",
+      "english": "The patient feels pain",
+      "word_ids": [1, 2, 4],
+      "word_tokens": ["المريض", "يشعر", "بالألم"]
+    },
+    {
+      "sentence_id": 3,
+      "arabic": "الممرض يحضر الطعام",
+      "english": "The nurse brings the food",
+      "word_ids": [5, 6, 7],
+      "word_tokens": ["الممرض", "يحضر", "الطعام"]
+    },
+    {
+      "sentence_id": 4,
+      "arabic": "الممرض يحضر الماء",
+      "english": "The nurse brings the water",
+      "word_ids": [5, 6, 8],
+      "word_tokens": ["الممرض", "يحضر", "الماء"]
+    },
+    {
+      "sentence_id": 5,
+      "arabic": "السرير غير مريح",
+      "english": "The bed is uncomfortable",
+      "word_ids": [9, 10, 11],
+      "word_tokens": ["السرير", "غير", "مريح"]
+    },
+    {
+      "sentence_id": 6,
+      "arabic": "الطعام غير لذيذ",
+      "english": "The food is not tasty",
+      "word_ids": [7, 10, 12],
+      "word_tokens": ["الطعام", "غير", "لذيذ"]
+    },
+    {
+      "sentence_id": 7,
+      "arabic": "الطبيب يغادر المستشفى",
+      "english": "The doctor leaves the hospital",
+      "word_ids": [13, 14, 15],
+      "word_tokens": ["الطبيب", "يغادر", "المستشفى"]
+    },
+    {
+      "sentence_id": 8,
+      "arabic": "الطبيب يصف الدواء",
+      "english": "The doctor prescribes the medicine",
+      "word_ids": [13, 16, 17],
+      "word_tokens": ["الطبيب", "يصف", "الدواء"]
+    },
+    {
+      "sentence_id": 9,
+      "arabic": "الصيدلي يعد الدواء",
+      "english": "The pharmacist prepares the medicine",
+      "word_ids": [18, 19, 17],
+      "word_tokens": ["الصيدلي", "يعد", "الدواء"]
+    },
+    {
+      "sentence_id": 10,
+      "arabic": "الصيدلي يجيب الهاتف",
+      "english": "The pharmacist answers the phone",
+      "word_ids": [18, 20, 21],
+      "word_tokens": ["الصيدلي", "يجيب", "الهاتف"]
+    },
+    {
+      "sentence_id": 11,
+      "arabic": "العامل يمسح الأرض",
+      "english": "The cleaner wipes the floor",
+      "word_ids": [22, 23, 24],
+      "word_tokens": ["العامل", "يمسح", "الأرض"]
+    },
+    {
+      "sentence_id": 12,
+      "arabic": "العامل يرتب السرير",
+      "english": "The cleaner tidies the bed",
+      "word_ids": [22, 25, 9],
+      "word_tokens": ["العامل", "يرتب", "السرير"]
+    }
+  ]
+}
