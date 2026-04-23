@@ -15,10 +15,17 @@ coverage/
 storage/*
 !storage/.gitkeep
 !storage/base_models/
+storage/base_models/*
 !storage/base_models/.gitkeep
 !storage/profiles/
+storage/profiles/*
 !storage/profiles/.gitkeep
 !storage/sessions/
+storage/sessions/*
 !storage/sessions/.gitkeep
 !storage/logs/
+storage/logs/*
 !storage/logs/.gitkeep
+!storage/auth/
+storage/auth/*
+!storage/auth/.gitkeep

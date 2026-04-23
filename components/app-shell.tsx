@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Image from "next/image";
 import { Sidebar } from "@/components/sidebar";
+import { LogoutButton } from "@/components/logout-button";
 
 interface AppShellProps {
   title: string;
@@ -27,6 +28,7 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
             <div className="flex items-center gap-2">
               <span className="kh-chip">Offline Only</span>
               <span className="kh-chip">v1 Fixed Pipeline</span>
+              <LogoutButton />
             </div>
           </header>
 

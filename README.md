@@ -12,9 +12,10 @@ Khayal Local is an offline, local-only EEG imagined speech application.
 
 ## Product boundaries
 - Local machine only
-- No SQL, no cloud storage, no remote auth
+- No SQL, no cloud storage, no remote auth providers
 - No model chooser and no phrase-set chooser in UI
 - Inference is blocked until a personalized Stage 1 checkpoint exists for the active profile
+- App opens at a local login/register gate (`/auth`) before the main pages
 
 ## Local requirements
 - Node.js 20+
@@ -71,3 +72,4 @@ Khayal Local is an offline, local-only EEG imagined speech application.
 - or `./run-local.ps1 -FrontendOnly`
 
 This starts only Next.js on `http://127.0.0.1:3000`.
+You can still register/login locally; EEG pipeline actions require Python service.
