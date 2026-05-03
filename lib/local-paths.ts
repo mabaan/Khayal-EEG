@@ -6,6 +6,8 @@ const ROOT = process.cwd();
 export const paths = {
   root: ROOT,
   storageRoot: path.join(ROOT, "storage"),
+  demoModels: path.join(ROOT, "storage", "demo_models"),
+  demoEdfRoot: path.join(ROOT, "storage", "demo_edf"),
   baseModels: path.join(ROOT, "storage", "base_models"),
   profilesRoot: path.join(ROOT, "storage", "profiles"),
   sessionsRoot: path.join(ROOT, "storage", "sessions"),
@@ -23,6 +25,10 @@ export function profileFile(profileId: string): string {
 
 export function profileRawEdfDir(profileId: string): string {
   return path.join(profileDir(profileId), "raw_edf");
+}
+
+export function profileInferenceUploadDir(profileId: string, groupId: string): string {
+  return path.join(profileRawEdfDir(profileId), "inference_uploads", groupId);
 }
 
 export function profileProcessedDir(profileId: string): string {

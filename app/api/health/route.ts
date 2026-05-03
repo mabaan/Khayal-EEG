@@ -9,17 +9,21 @@ export async function GET() {
   const storageOk = await fs.access(paths.storageRoot).then(() => true).catch(() => false);
 
   let pythonOk = false;
+  let pythonPayload: unknown = null;
   try {
     const response = await fetch(`${PYTHON_SERVICE_URL}/health`, { method: "GET" });
     pythonOk = response.ok;
+    pythonPayload = await response.json().catch(() => null);
   } catch {
     pythonOk = false;
+    pythonPayload = null;
   }
 
   return NextResponse.json({
     status: storageOk && pythonOk ? "ok" : "degraded",
     storage_ok: storageOk,
     python_service_ok: pythonOk,
-    python_service_url: PYTHON_SERVICE_URL
+    python_service_url: PYTHON_SERVICE_URL,
+    python_service: pythonPayload
   });
 }

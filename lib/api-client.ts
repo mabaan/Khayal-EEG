@@ -1,9 +1,13 @@
 import type {
+  DemoLoadResult,
   InferenceResult,
+  InferenceRequest,
   ProfileManifest,
   SessionRecord,
   SimulationSnapshot,
-  TrainingResult
+  TrainingResult,
+  UploadEdfResult,
+  UploadModelResult
 } from "@/lib/types";
 
 async function parseResponse<T>(response: Response): Promise<T> {
@@ -55,12 +59,41 @@ export async function startTraining(calibrationEdfPaths: string[]): Promise<Trai
   return parseResponse(response);
 }
 
-export async function runInference(edfPath: string, simulated = false): Promise<InferenceResult> {
+export async function runInference(payload: InferenceRequest): Promise<InferenceResult> {
   const response = await fetch("/api/infer", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ edf_path: edfPath, simulated })
+    body: JSON.stringify(payload)
   });
+  return parseResponse(response);
+}
+
+export async function uploadModelFile(file: File): Promise<UploadModelResult> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch("/api/model/upload", { method: "POST", body: form });
+  return parseResponse(response);
+}
+
+export async function uploadEegAsset(
+  file: File,
+  role: "edf" | "marker",
+  purpose: "calibration" | "inference" = "inference",
+  groupId?: string
+): Promise<UploadEdfResult> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("file_role", role);
+  form.append("purpose", purpose);
+  if (groupId) {
+    form.append("group_id", groupId);
+  }
+  const response = await fetch("/api/edf/upload", { method: "POST", body: form });
+  return parseResponse(response);
+}
+
+export async function loadDemoCase(): Promise<DemoLoadResult> {
+  const response = await fetch("/api/demo/load", { method: "POST" });
   return parseResponse(response);
 }
 

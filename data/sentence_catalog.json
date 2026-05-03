@@ -1,88 +1,112 @@
 {
   "sentence_catalog": [
     {
-      "sentence_id": 1,
+      "sentence_id": "C1",
       "arabic": "المريض يشعر بالجوع",
+      "romanized": "almareed yash3ur biljoo3",
       "english": "The patient feels hungry",
-      "word_ids": [1, 2, 3],
-      "word_tokens": ["المريض", "يشعر", "بالجوع"]
+      "word_ids": [0, 1, 20],
+      "word_tokens": ["almareed", "yash3ur", "biljoo3"],
+      "word_arabic": ["المريض", "يشعر", "بالجوع"]
     },
     {
-      "sentence_id": 2,
+      "sentence_id": "C2",
       "arabic": "المريض يشعر بالألم",
+      "romanized": "almareed yash3ur bilalam",
       "english": "The patient feels pain",
-      "word_ids": [1, 2, 4],
-      "word_tokens": ["المريض", "يشعر", "بالألم"]
+      "word_ids": [0, 1, 17],
+      "word_tokens": ["almareed", "yash3ur", "bilalam"],
+      "word_arabic": ["المريض", "يشعر", "بالألم"]
     },
     {
-      "sentence_id": 3,
+      "sentence_id": "C3",
       "arabic": "الممرض يحضر الطعام",
+      "romanized": "almumarid yu7dar alta3am",
       "english": "The nurse brings the food",
-      "word_ids": [5, 6, 7],
-      "word_tokens": ["الممرض", "يحضر", "الطعام"]
+      "word_ids": [2, 3, 4],
+      "word_tokens": ["almumarid", "yu7dar", "alta3am"],
+      "word_arabic": ["الممرض", "يحضر", "الطعام"]
     },
     {
-      "sentence_id": 4,
+      "sentence_id": "C4",
       "arabic": "الممرض يحضر الماء",
+      "romanized": "almumarid yu7dar alma2",
       "english": "The nurse brings the water",
-      "word_ids": [5, 6, 8],
-      "word_tokens": ["الممرض", "يحضر", "الماء"]
+      "word_ids": [2, 3, 11],
+      "word_tokens": ["almumarid", "yu7dar", "alma2"],
+      "word_arabic": ["الممرض", "يحضر", "الماء"]
     },
     {
-      "sentence_id": 5,
+      "sentence_id": "C5",
       "arabic": "السرير غير مريح",
+      "romanized": "alsareer gheir muree7",
       "english": "The bed is uncomfortable",
-      "word_ids": [9, 10, 11],
-      "word_tokens": ["السرير", "غير", "مريح"]
+      "word_ids": [5, 6, 12],
+      "word_tokens": ["alsareer", "gheir", "muree7"],
+      "word_arabic": ["السرير", "غير", "مريح"]
     },
     {
-      "sentence_id": 6,
+      "sentence_id": "C6",
       "arabic": "الطعام غير لذيذ",
+      "romanized": "alta3am gheir latheeth",
       "english": "The food is not tasty",
-      "word_ids": [7, 10, 12],
-      "word_tokens": ["الطعام", "غير", "لذيذ"]
+      "word_ids": [4, 6, 13],
+      "word_tokens": ["alta3am", "gheir", "latheeth"],
+      "word_arabic": ["الطعام", "غير", "لذيذ"]
     },
     {
-      "sentence_id": 7,
+      "sentence_id": "C7",
       "arabic": "الطبيب يغادر المستشفى",
+      "romanized": "altabeeb yughadir almustashfa",
       "english": "The doctor leaves the hospital",
-      "word_ids": [13, 14, 15],
-      "word_tokens": ["الطبيب", "يغادر", "المستشفى"]
+      "word_ids": [7, 14, 15],
+      "word_tokens": ["altabeeb", "yughadir", "almustashfa"],
+      "word_arabic": ["الطبيب", "يغادر", "المستشفى"]
     },
     {
-      "sentence_id": 8,
+      "sentence_id": "C8",
       "arabic": "الطبيب يصف الدواء",
+      "romanized": "altabeeb yasif aldawa2",
       "english": "The doctor prescribes the medicine",
-      "word_ids": [13, 16, 17],
-      "word_tokens": ["الطبيب", "يصف", "الدواء"]
+      "word_ids": [7, 16, 8],
+      "word_tokens": ["altabeeb", "yasif", "aldawa2"],
+      "word_arabic": ["الطبيب", "يصف", "الدواء"]
     },
     {
-      "sentence_id": 9,
+      "sentence_id": "C9",
       "arabic": "الصيدلي يعد الدواء",
+      "romanized": "alsaydalee yu3id aldawa2",
       "english": "The pharmacist prepares the medicine",
-      "word_ids": [18, 19, 17],
-      "word_tokens": ["الصيدلي", "يعد", "الدواء"]
+      "word_ids": [9, 24, 8],
+      "word_tokens": ["alsaydalee", "yu3id", "aldawa2"],
+      "word_arabic": ["الصيدلي", "يعد", "الدواء"]
     },
     {
-      "sentence_id": 10,
+      "sentence_id": "C10",
       "arabic": "الصيدلي يجيب الهاتف",
+      "romanized": "alsaydalee yujeeb alhatif",
       "english": "The pharmacist answers the phone",
-      "word_ids": [18, 20, 21],
-      "word_tokens": ["الصيدلي", "يجيب", "الهاتف"]
+      "word_ids": [9, 18, 19],
+      "word_tokens": ["alsaydalee", "yujeeb", "alhatif"],
+      "word_arabic": ["الصيدلي", "يجيب", "الهاتف"]
     },
     {
-      "sentence_id": 11,
+      "sentence_id": "C11",
       "arabic": "العامل يمسح الأرض",
-      "english": "The cleaner wipes the floor",
-      "word_ids": [22, 23, 24],
-      "word_tokens": ["العامل", "يمسح", "الأرض"]
+      "romanized": "al3amil yamsa7 alard",
+      "english": "The worker wipes the floor",
+      "word_ids": [10, 21, 22],
+      "word_tokens": ["al3amil", "yamsa7", "alard"],
+      "word_arabic": ["العامل", "يمسح", "الأرض"]
     },
     {
-      "sentence_id": 12,
+      "sentence_id": "C12",
       "arabic": "العامل يرتب السرير",
-      "english": "The cleaner tidies the bed",
-      "word_ids": [22, 25, 9],
-      "word_tokens": ["العامل", "يرتب", "السرير"]
+      "romanized": "al3amil yuratib alsareer",
+      "english": "The worker tidies the bed",
+      "word_ids": [10, 23, 5],
+      "word_tokens": ["al3amil", "yuratib", "alsareer"],
+      "word_arabic": ["العامل", "يرتب", "السرير"]
     }
   ]
 }

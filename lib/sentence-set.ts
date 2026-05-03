@@ -8,10 +8,10 @@ export const LABELS = labels.labels as LabelItem[];
 export const SENTENCE_COUNT = SENTENCE_CATALOG.length;
 export const VOCABULARY_SIZE = LABELS.length;
 
-export function getSentenceById(sentenceId: number): SentenceCatalogItem | undefined {
+export function getSentenceById(sentenceId: string): SentenceCatalogItem | undefined {
   return SENTENCE_CATALOG.find((item) => item.sentence_id === sentenceId);
 }
 
 export function tokenForLabel(labelId: number): string {
-  return LABELS.find((item) => item.id === labelId)?.token ?? "";
+  return LABELS.find((item) => item.id === labelId)?.word ?? "";
 }

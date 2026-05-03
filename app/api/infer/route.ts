@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSessionRecord } from "@/lib/history-store";
 import { PYTHON_SERVICE_URL, READINESS_ERROR_MESSAGE } from "@/lib/constants";
 import { getActiveProfile } from "@/lib/profile-store";
+import type { InferenceResult, Stage2Mode } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   const profile = await getActiveProfile();
@@ -14,9 +15,16 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const payload = (await request.json()) as { edf_path?: string; simulated?: boolean };
-    const edfPath = payload.edf_path?.trim() ?? "";
+    const payload = (await request.json()) as {
+      edf_path?: string;
+      marker_csv_path?: string;
+      top_k_words?: number;
+      retrieval_topk?: number;
+      stage2_mode?: Stage2Mode;
+      use_demo_files?: boolean;
+    };
 
+    const edfPath = payload.edf_path?.trim() ?? "";
     if (!edfPath) {
       return NextResponse.json({ error: "edf_path is required." }, { status: 400 });
     }
@@ -28,20 +36,15 @@ export async function POST(request: NextRequest) {
         profile_id: profile.id,
         user_model_path: profile.user_model_path,
         edf_path: edfPath,
-        simulated: Boolean(payload.simulated)
+        marker_csv_path: payload.marker_csv_path?.trim() || undefined,
+        top_k_words: payload.top_k_words ?? 8,
+        retrieval_topk: payload.retrieval_topk ?? 5,
+        stage2_mode: payload.stage2_mode ?? "qwen",
+        use_demo_files: Boolean(payload.use_demo_files)
       })
     });
 
-    const result = (await response.json()) as {
-      status?: "success" | "failed";
-      message?: string;
-      final_sentence?: string;
-      candidates?: unknown[];
-      selected_sentence_id?: number;
-      stage1_posteriors?: unknown[];
-      used_fallback?: boolean;
-      session_id?: string;
-    };
+    const result = (await response.json()) as InferenceResult;
 
     if (!response.ok || result.status !== "success") {
       await createSessionRecord({
@@ -49,9 +52,9 @@ export async function POST(request: NextRequest) {
         type: "inference",
         status: "failed",
         signal_status: "error",
-        source: payload.simulated ? "simulated" : "edf_upload",
+        source: payload.use_demo_files ? "demo" : "edf_upload",
         input_path: edfPath,
-        details: result
+        details: { result }
       });
       return NextResponse.json({ error: result.message ?? "Inference failed." }, { status: 500 });
     }
@@ -61,26 +64,21 @@ export async function POST(request: NextRequest) {
       type: "inference",
       status: "success",
       signal_status: "complete",
-      source: payload.simulated ? "simulated" : "edf_upload",
+      source: payload.use_demo_files ? "demo" : "edf_upload",
       input_path: edfPath,
-      predicted_sentence: result.final_sentence,
+      predicted_sentence: result.prediction.arabic,
       details: {
         python_session_id: result.session_id,
-        selected_sentence_id: result.selected_sentence_id,
-        used_fallback: result.used_fallback
+        sentence_id: result.prediction.sentence_id,
+        stage2_mode: result.stage2.mode,
+        used_fallback: result.stage2.used_fallback,
+        warning_count: result.preprocessing.warnings.length + result.stage2.warnings.length
       }
     });
 
     return NextResponse.json({
-      profile_id: profile.id,
-      session_id: session.session_id,
-      final_sentence: result.final_sentence,
-      candidates: result.candidates ?? [],
-      selected_sentence_id: result.selected_sentence_id ?? 0,
-      stage1_posteriors: result.stage1_posteriors ?? [],
-      used_fallback: Boolean(result.used_fallback),
-      status: "success",
-      message: result.message ?? "Inference complete."
+      ...result,
+      history_session_id: session.session_id
     });
   } catch (error) {
     return NextResponse.json(

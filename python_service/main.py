@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import OLLAMA_BASE_URL
+from .config import OLLAMA_BASE_URL, STAGE2_SUPPORTED_MODES
 from .infer_pipeline import run_inference_pipeline, run_simulated_pipeline
 from .logging_utils import append_log
 from .schemas import (
@@ -14,7 +14,11 @@ from .schemas import (
     SimulateResponse,
     TrainRequest,
     TrainResponse,
+    ValidateModelRequest,
+    ValidateModelResponse,
 )
+from .stage1_model_adapter import validate_checkpoint
+from .stage2_decoder_adapter import cuda_available, ollama_available, transformers_available
 from .storage import ensure_storage_layout
 from .train_user_model import train_user_model
 
@@ -37,7 +41,47 @@ def _startup() -> None:
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse(status="ok", message=f"Service online. Stage2 endpoint: {OLLAMA_BASE_URL}")
+    ollama_ok = ollama_available()
+    transformers_ok = transformers_available()
+    cuda_ok = cuda_available()
+    status = "ok"
+    message = f"Service online. Stage2 endpoint: {OLLAMA_BASE_URL}"
+    if not ollama_ok:
+        message += " Qwen/Ollama unavailable; retrieval rank-1 fallback is ready."
+    if not cuda_ok:
+        message += " CUDA unavailable; transformer retrieval will run on CPU."
+    return HealthResponse(
+        status=status,
+        message=message,
+        ollama_available=ollama_ok,
+        transformers_available=transformers_ok,
+        cuda_available=cuda_ok,
+        supported_stage2_modes=list(STAGE2_SUPPORTED_MODES),
+    )
+
+
+@app.post("/validate-model", response_model=ValidateModelResponse)
+def validate_model(request: ValidateModelRequest) -> ValidateModelResponse:
+    try:
+        metadata = validate_checkpoint(request.model_path)
+        model = {
+            "path": metadata["path"],
+            "filename": metadata["filename"],
+            "arch": metadata["arch"],
+            "subject": metadata["subject"],
+            "classifier": metadata["classifier"],
+            "n_classes": metadata["n_classes"],
+            "device": metadata["device"],
+            "window_size": metadata["window_size"],
+            "validated": True,
+        }
+        return ValidateModelResponse(
+            status="success",
+            message="Checkpoint validated successfully.",
+            model=model,
+        )
+    except Exception as exc:
+        return ValidateModelResponse(status="failed", message=str(exc), model=None)
 
 
 @app.post("/train", response_model=TrainResponse)
@@ -70,26 +114,17 @@ def train(request: TrainRequest) -> TrainResponse:
 
 @app.post("/infer", response_model=InferResponse)
 def infer(request: InferRequest) -> InferResponse:
-    try:
-        result = run_inference_pipeline(
-            profile_id=request.profile_id,
-            user_model_path=request.user_model_path,
-            edf_path=request.edf_path,
-            simulated=request.simulated,
-        )
-        return InferResponse(**result)
-    except Exception as exc:
-        append_log("infer.log", f"[{request.profile_id}] inference failed: {exc}")
-        return InferResponse(
-            status="failed",
-            message=str(exc),
-            session_id="",
-            final_sentence=None,
-            selected_sentence_id=None,
-            stage1_posteriors=[],
-            candidates=[],
-            used_fallback=True,
-        )
+    result = run_inference_pipeline(
+        profile_id=request.profile_id,
+        user_model_path=request.user_model_path,
+        edf_path=request.edf_path,
+        marker_csv_path=request.marker_csv_path,
+        top_k_words=request.top_k_words,
+        retrieval_topk=request.retrieval_topk,
+        stage2_mode=request.stage2_mode,
+        use_demo_files=request.use_demo_files,
+    )
+    return InferResponse(**result)
 
 
 @app.post("/simulate", response_model=SimulateResponse)

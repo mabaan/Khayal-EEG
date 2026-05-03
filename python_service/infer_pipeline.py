@@ -1,105 +1,289 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 
-from .features import build_stage1_tensor
-from .infer_stage1 import infer_stage1_posteriors
-from .load_checkpoint import load_checkpoint
+from .config import DEMO_EDF_PATH, DEMO_MARKER_PATH, DEMO_MODEL_PATH
+from .edf_trial_processor import process_trial_edf
 from .logging_utils import append_log
-from .preprocess import preprocess_edf
-from .rag_decoder import rerank_with_qwen
-from .retrieve_sentences import retrieve_candidates
-from .segment import segment_imagination_windows
-from .storage import (
-    ensure_profile_layout,
-    now_iso,
-    profile_inference_dir,
-    read_json,
-    write_json,
-)
-from .config import LABELS_PATH
-
-
-def _label_ids() -> list[int]:
-    payload = read_json(LABELS_PATH, {"labels": []})
-    return [int(item["id"]) for item in payload.get("labels", [])]
+from .stage1_model_adapter import Stage1DiffEAdapter
+from .stage2_decoder_adapter import Stage2DecoderAdapter
+from .storage import ensure_profile_layout, now_iso, profile_inference_dir, write_json
 
 
 def _session_id(prefix: str) -> str:
     return f"{prefix}-{int(np.datetime64('now', 'ms').astype(int))}"
 
 
-def run_inference_pipeline(profile_id: str, user_model_path: str, edf_path: str, simulated: bool = False) -> Dict[str, object]:
-    ensure_profile_layout(profile_id)
-    session_id = _session_id("infer")
+def _new_timeline() -> List[Dict[str, object]]:
+    return [
+        {"id": "model_validated", "label": "Model validated", "status": "pending", "detail": None, "warnings": []},
+        {"id": "edf_loaded", "label": "EDF loaded", "status": "pending", "detail": None, "warnings": []},
+        {"id": "marker_detected", "label": "Marker CSV detected", "status": "pending", "detail": None, "warnings": []},
+        {"id": "preprocessing", "label": "Preprocessing EEG", "status": "pending", "detail": None, "warnings": []},
+        {
+            "id": "segmenting",
+            "label": "Segmenting 3 imagination windows",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "building_tensors",
+            "label": "Building 19-channel tensors",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "stage1",
+            "label": "Running Stage 1 DiffE word classifier",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "posterior_evidence",
+            "label": "Building Top-k posterior evidence",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "retrieval",
+            "label": "Building transformer candidate shortlist",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "reranking",
+            "label": "Running Qwen/Ollama sentence selection",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+        {
+            "id": "decoded",
+            "label": "Final sentence decoded",
+            "status": "pending",
+            "detail": None,
+            "warnings": [],
+        },
+    ]
 
-    load_checkpoint(user_model_path)
 
-    preprocessed = preprocess_edf(profile_id, edf_path)
-    segmented = segment_imagination_windows(profile_id, preprocessed.data, preprocessed.sfreq, Path(edf_path).stem)
+def _set_step(
+    timeline: List[Dict[str, object]],
+    step_id: str,
+    status: str,
+    detail: Optional[str] = None,
+    warnings: Optional[List[str]] = None,
+) -> None:
+    for step in timeline:
+        if step["id"] != step_id:
+            continue
+        step["status"] = status
+        if detail is not None:
+            step["detail"] = detail
+        if warnings:
+            step["warnings"] = list(warnings)
+            if status == "complete":
+                step["status"] = "warning"
+        return
 
-    slot_tensors = []
-    band_power_summary = []
-    for window in segmented.windows:
-        tensor, powers = build_stage1_tensor(window, preprocessed.sfreq)
-        slot_tensors.append(tensor)
-        band_power_summary.append(powers)
 
-    stage1_posteriors = infer_stage1_posteriors(slot_tensors, _label_ids())
-    candidates = retrieve_candidates(stage1_posteriors)
-    selected, used_fallback, llm_raw = rerank_with_qwen(candidates, stage1_posteriors)
-
-    final_sentence = str(selected["arabic"])
-    selected_sentence_id = int(selected["sentence_id"])
-
-    inference_dir = profile_inference_dir(profile_id)
-    manifest_path = inference_dir / "inference_manifest.json"
-    result_path = inference_dir / "results" / f"{session_id}.json"
-
-    payload = {
+def _failure_payload(profile_id: str, session_id: str, message: str, timeline: List[Dict[str, object]]) -> Dict[str, object]:
+    return {
+        "status": "failed",
+        "message": message,
         "session_id": session_id,
         "profile_id": profile_id,
-        "created_at": now_iso(),
-        "simulated": simulated,
-        "source_edf": edf_path,
-        "preprocessed_path": str(preprocessed.output_path),
-        "segmented_windows": [str(path) for path in segmented.window_paths],
-        "stage1_posteriors": stage1_posteriors,
-        "retrieval_candidates": candidates,
-        "selected_sentence_id": selected_sentence_id,
-        "final_sentence": final_sentence,
-        "used_fallback": used_fallback,
-        "llm_raw": llm_raw,
-        "band_power_summary": band_power_summary,
-        "status": "success",
+        "model": {"validated": False},
+        "edf": {},
+        "preprocessing": {"warnings": []},
+        "stage1": {"top_k_words": 0, "slots": []},
+        "stage2": {
+            "mode": "qwen",
+            "retrieval_topk": 0,
+            "used_fallback": True,
+            "candidate_sentences": [],
+            "warnings": [],
+        },
+        "prediction": {},
+        "timing": {"total_ms": 0, "preprocessing_ms": 0, "stage1_ms": 0, "stage2_ms": 0},
+        "timeline": timeline,
+        "final_sentence": None,
+        "selected_sentence_id": None,
+        "used_fallback": True,
     }
 
-    result_path.parent.mkdir(parents=True, exist_ok=True)
-    write_json(result_path, payload)
-    write_json(manifest_path, payload)
 
-    append_log("infer.log", f"[{profile_id}] inference complete -> sentence_id={selected_sentence_id}")
+def run_inference_pipeline(
+    profile_id: str,
+    user_model_path: str,
+    edf_path: str,
+    marker_csv_path: Optional[str] = None,
+    top_k_words: int = 8,
+    retrieval_topk: int = 5,
+    stage2_mode: str = "qwen",
+    use_demo_files: bool = False,
+) -> Dict[str, object]:
+    ensure_profile_layout(profile_id)
+    session_id = _session_id("infer")
+    timeline = _new_timeline()
+    started = time.perf_counter()
 
-    return {
-        "status": "success",
-        "message": "Session inference complete.",
-        "session_id": session_id,
-        "final_sentence": final_sentence,
-        "selected_sentence_id": selected_sentence_id,
-        "stage1_posteriors": stage1_posteriors,
-        "candidates": [
-            {
-                "sentence_id": int(item["sentence_id"]),
-                "arabic": item["arabic"],
-                "score": float(item["score"]),
-            }
-            for item in candidates
-        ],
-        "used_fallback": used_fallback,
-    }
+    resolved_model_path = str(DEMO_MODEL_PATH if use_demo_files else Path(user_model_path))
+    resolved_edf_path = str(DEMO_EDF_PATH if use_demo_files else Path(edf_path))
+    resolved_marker_path = str(DEMO_MARKER_PATH) if use_demo_files else marker_csv_path
+
+    if not resolved_model_path:
+        raise ValueError("A personalized Stage 1 checkpoint is required for inference.")
+    if not resolved_edf_path:
+        raise ValueError("edf_path is required for inference.")
+
+    try:
+        model = Stage1DiffEAdapter(model_path=resolved_model_path)
+        _set_step(timeline, "model_validated", "complete", detail=model.info()["filename"])
+
+        _set_step(timeline, "edf_loaded", "running")
+        preprocessing_started = time.perf_counter()
+        processed_trial = process_trial_edf(edf_path=resolved_edf_path, marker_csv_path=resolved_marker_path)
+        preprocessing_ms = int((time.perf_counter() - preprocessing_started) * 1000)
+        _set_step(timeline, "edf_loaded", "complete", detail=Path(processed_trial.edf_path).name)
+        _set_step(timeline, "marker_detected", "complete", detail=Path(processed_trial.marker_csv_path).name)
+        _set_step(
+            timeline,
+            "preprocessing",
+            "complete",
+            detail=f"{processed_trial.sampling_rate} Hz, {len(processed_trial.channels)} EEG channels",
+            warnings=processed_trial.warnings,
+        )
+        _set_step(
+            timeline,
+            "segmenting",
+            "complete",
+            detail=f"{len(processed_trial.imagine_markers)} imagination windows",
+        )
+        _set_step(
+            timeline,
+            "building_tensors",
+            "complete",
+            detail=", ".join([f"{shape[0]}x{shape[1]}" for shape in processed_trial.slot_tensor_shapes]),
+        )
+
+        _set_step(timeline, "stage1", "running")
+        stage1_started = time.perf_counter()
+        stage1_slots = model.predict_slots(processed_trial.slot_tensors, top_k=top_k_words)
+        stage1_ms = int((time.perf_counter() - stage1_started) * 1000)
+        _set_step(timeline, "stage1", "complete", detail=f"{len(stage1_slots)} slots classified")
+        _set_step(timeline, "posterior_evidence", "complete", detail=f"Top-{int(top_k_words)} evidence prepared")
+
+        _set_step(timeline, "retrieval", "running")
+        stage2_started = time.perf_counter()
+        decoder = Stage2DecoderAdapter()
+        stage2_output = decoder.decode(stage1_slots=stage1_slots, retrieval_topk=retrieval_topk, stage2_mode=stage2_mode)
+        stage2_ms = int((time.perf_counter() - stage2_started) * 1000)
+        _set_step(
+            timeline,
+            "retrieval",
+            "complete",
+            detail=f"{len(stage2_output['candidate_sentences'])} transformer-ranked candidates returned",
+        )
+        _set_step(
+            timeline,
+            "reranking",
+            "complete",
+            detail="Retrieval rank-1 fallback used" if stage2_output["used_fallback"] else "Qwen/Ollama selected a candidate",
+            warnings=stage2_output["warnings"],
+        )
+        _set_step(
+            timeline,
+            "decoded",
+            "complete",
+            detail=f"{stage2_output['prediction']['sentence_id']} selected",
+        )
+
+        total_ms = int((time.perf_counter() - started) * 1000)
+        payload = {
+            "status": "success",
+            "message": "Khayal inference complete.",
+            "session_id": session_id,
+            "profile_id": profile_id,
+            "model": model.info(),
+            "edf": {
+                "path": processed_trial.edf_path,
+                "filename": Path(processed_trial.edf_path).name,
+                "marker_csv": processed_trial.marker_csv_path,
+                "subject": processed_trial.subject,
+                "trial": processed_trial.trial,
+                "sentence_id": processed_trial.sentence_id,
+            },
+            "preprocessing": {
+                "channels": processed_trial.channels,
+                "sampling_rate": processed_trial.sampling_rate,
+                "num_slots": len(processed_trial.slot_tensors),
+                "slot_tensor_shapes": processed_trial.slot_tensor_shapes,
+                "marker_csv": processed_trial.marker_csv_path,
+                "warnings": processed_trial.warnings,
+                "imagine_markers": processed_trial.imagine_markers,
+            },
+            "stage1": {
+                "top_k_words": int(top_k_words),
+                "slots": stage1_slots,
+            },
+            "stage2": {
+                "mode": stage2_output["mode"],
+                "retrieval_topk": stage2_output["retrieval_topk"],
+                "used_fallback": stage2_output["used_fallback"],
+                "candidate_sentences": stage2_output["candidate_sentences"],
+                "raw_llm_output": stage2_output["raw_llm_output"],
+                "warnings": stage2_output["warnings"],
+                "reranker_model": stage2_output["reranker_model"],
+                "transformer_model": stage2_output["transformer_model"],
+                "device": stage2_output["device"],
+                "transformer_retrieval_used": stage2_output["transformer_retrieval_used"],
+            },
+            "prediction": stage2_output["prediction"],
+            "timing": {
+                "total_ms": total_ms,
+                "preprocessing_ms": preprocessing_ms,
+                "stage1_ms": stage1_ms,
+                "stage2_ms": stage2_ms,
+            },
+            "timeline": timeline,
+            "final_sentence": stage2_output["prediction"]["arabic"],
+            "selected_sentence_id": stage2_output["prediction"]["sentence_id"],
+            "used_fallback": stage2_output["used_fallback"],
+            "created_at": now_iso(),
+        }
+
+        inference_dir = profile_inference_dir(profile_id)
+        result_path = inference_dir / "results" / f"{session_id}.json"
+        manifest_path = inference_dir / "inference_manifest.json"
+        write_json(result_path, payload)
+        write_json(manifest_path, payload)
+        append_log(
+            "infer.log",
+            f"[{profile_id}] inference complete -> sentence_id={payload['prediction']['sentence_id']}",
+        )
+        return payload
+    except Exception as exc:
+        total_ms = int((time.perf_counter() - started) * 1000)
+        _set_step(timeline, "decoded", "failed", detail=str(exc))
+        payload = _failure_payload(profile_id=profile_id, session_id=session_id, message=str(exc), timeline=timeline)
+        payload["timing"] = {
+            "total_ms": total_ms,
+            "preprocessing_ms": 0,
+            "stage1_ms": 0,
+            "stage2_ms": 0,
+        }
+        append_log("infer.log", f"[{profile_id}] inference failed: {exc}")
+        return payload
 
 
 def run_simulated_pipeline(profile_id: str, user_model_path: Optional[str], model_ready: bool) -> Dict[str, object]:
@@ -120,44 +304,18 @@ def run_simulated_pipeline(profile_id: str, user_model_path: Optional[str], mode
         "F8",
         "AF4",
     ]
-
     for t in range(120):
         values = [float(np.sin((t + idx * 5) / 9.0) * 22 + np.cos((t + idx) / 7.0) * 4) for idx in range(14)]
         points.append({"t": t, "values": values})
 
-    simulation = {
-        "signal_status": "complete",
-        "current_step": "Simulated replay complete",
-        "channel_names": channels,
-        "points": points,
-    }
-
-    inference_result = None
-    if model_ready and user_model_path:
-        slot_probs = infer_stage1_posteriors([np.ones((19, 1400))] * 3, _label_ids())
-        candidates = retrieve_candidates(slot_probs)
-        selected, used_fallback, _ = rerank_with_qwen(candidates, slot_probs)
-        inference_result = {
-            "status": "success",
-            "message": "Simulation produced a sentence preview.",
-            "session_id": _session_id("sim"),
-            "final_sentence": selected["arabic"],
-            "selected_sentence_id": selected["sentence_id"],
-            "stage1_posteriors": slot_probs,
-            "candidates": [
-                {
-                    "sentence_id": int(item["sentence_id"]),
-                    "arabic": item["arabic"],
-                    "score": float(item["score"]),
-                }
-                for item in candidates
-            ],
-            "used_fallback": used_fallback,
-        }
-
     return {
         "status": "success",
-        "message": "Simulation completed.",
-        "simulation": simulation,
-        "inference_result": inference_result,
+        "message": "Simulated-only replay completed.",
+        "simulation": {
+            "signal_status": "complete",
+            "current_step": "Simulated-only replay complete",
+            "channel_names": channels,
+            "points": points,
+        },
+        "inference_result": None,
     }

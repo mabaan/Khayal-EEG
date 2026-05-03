@@ -10,8 +10,8 @@ async function listProfileEdfs(profileId: string): Promise<string[]> {
   const folder = profileRawEdfDir(profileId);
   const entries = await fs.readdir(folder, { withFileTypes: true }).catch(() => []);
   return entries
-    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".edf"))
-    .map((entry) => path.join(folder, entry.name));
+    .filter((entry: { isFile: () => boolean; name: string }) => entry.isFile() && entry.name.toLowerCase().endsWith(".edf"))
+    .map((entry: { name: string }) => path.join(folder, entry.name));
 }
 
 export async function POST(request: NextRequest) {

@@ -4,8 +4,18 @@ export function isEdfFileName(fileName: string): boolean {
   return fileName.toLowerCase().endsWith(".edf");
 }
 
+export function isCsvFileName(fileName: string): boolean {
+  return fileName.toLowerCase().endsWith(".csv");
+}
+
+export function isModelFileName(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return lower.endsWith(".pt") || lower.endsWith(".pth");
+}
+
 export function isPtFilePath(filePath: string): boolean {
-  return filePath.toLowerCase().endsWith(".pt");
+  const lower = filePath.toLowerCase();
+  return lower.endsWith(".pt") || lower.endsWith(".pth");
 }
 
 export function isSafeProfileName(name: string): boolean {
