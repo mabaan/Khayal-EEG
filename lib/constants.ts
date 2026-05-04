@@ -51,7 +51,7 @@ export const SESSION_WIDGET_LABELS = {
 export const NAV_ITEMS = [
   { href: "/", label: "Home" },
   { href: "/setup", label: "Setup" },
-  { href: "/calibration", label: "Calibration" },
+  { href: "/calibration", label: "Catalog" },
   { href: "/inference", label: "Session" },
   { href: "/history", label: "Recent Sessions" },
   { href: "/settings", label: "Settings" }

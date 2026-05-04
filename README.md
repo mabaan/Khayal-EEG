@@ -94,7 +94,7 @@ bash ./run-local.sh
 2. Start the Next.js app.
 3. Open the local app and log in.
 4. Create or select an active profile in `Setup`.
-5. Review the sentence and word assets in `Calibration`.
+5. Review the sentence and word assets in `Catalog`.
 6. Open `Session`.
 7. Upload a Stage 1 checkpoint in `.pt` or `.pth` format.
 8. Upload one raw EEG `.edf` sentence trial.

@@ -2,9 +2,9 @@ import { AppShell } from "@/components/app-shell";
 import { SentenceGrid } from "@/components/sentence-grid";
 import { LABELS } from "@/lib/sentence-set";
 
-export default function CalibrationPage() {
+export default function CatalogPage() {
   return (
-    <AppShell title="Calibration" subtitle="Review the Khayal sentence catalog and word vocabulary">
+    <AppShell title="Catalog" subtitle="Review the Khayal sentence catalog and word vocabulary">
       <div className="space-y-5">
         <section className="kh-panel p-5">
           <p className="kh-kicker">Sentences</p>

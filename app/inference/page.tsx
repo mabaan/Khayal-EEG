@@ -344,7 +344,7 @@ export default function InferencePage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl">
             <p className="kh-kicker">Session Overview</p>
-            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Local-only inference workspace</h2>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Inference workspace</h2>
             <p className="mt-2 text-sm text-slate-600">
               The active profile stays in control. Upload a local checkpoint and EDF trial, then run sentence decoding end-to-end.
             </p>

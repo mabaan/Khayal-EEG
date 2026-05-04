@@ -3,13 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, History, Settings, UserPlus, Brain, Waves } from "lucide-react";
+import { BookOpen, Home, History, Settings, UserPlus, Waves } from "lucide-react";
 import { clsx } from "clsx";
 
 const items = [
   { href: "/", label: "Home", icon: Home },
   { href: "/setup", label: "Setup", icon: UserPlus },
-  { href: "/calibration", label: "Calibration", icon: Brain },
+  { href: "/calibration", label: "Catalog", icon: BookOpen },
   { href: "/inference", label: "Session", icon: Waves },
   { href: "/history", label: "Recent Sessions", icon: History },
   { href: "/settings", label: "Settings", icon: Settings }

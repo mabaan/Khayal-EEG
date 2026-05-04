@@ -2,8 +2,8 @@
 
 1. Create a new profile in Setup and verify it becomes active.
 2. Confirm model readiness is `Not Ready` before uploading a checkpoint.
-3. Open Calibration and verify all 12 sentences are visible.
-4. Open Calibration and verify all 25 words are visible.
+3. Open Catalog and verify all 12 sentences are visible.
+4. Open Catalog and verify all 25 words are visible.
 5. Upload a Stage 1 checkpoint from the Session page.
 6. Upload an EDF recording from the Session page.
 7. Run Session inference and verify final Arabic sentence output.
