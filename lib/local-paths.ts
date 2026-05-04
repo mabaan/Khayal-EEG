@@ -6,8 +6,6 @@ const ROOT = process.cwd();
 export const paths = {
   root: ROOT,
   storageRoot: path.join(ROOT, "storage"),
-  demoModels: path.join(ROOT, "storage", "demo_models"),
-  demoEdfRoot: path.join(ROOT, "storage", "demo_edf"),
   baseModels: path.join(ROOT, "storage", "base_models"),
   profilesRoot: path.join(ROOT, "storage", "profiles"),
   sessionsRoot: path.join(ROOT, "storage", "sessions"),
@@ -43,15 +41,11 @@ export function profileModelsDir(profileId: string): string {
   return path.join(profileDir(profileId), "models");
 }
 
-export function profileTrainingDir(profileId: string): string {
-  return path.join(profileDir(profileId), "training");
-}
-
 export function profileInferenceDir(profileId: string): string {
   return path.join(profileDir(profileId), "inference");
 }
 
-export function sessionTypeDir(type: "calibration" | "training" | "inference" | "simulation"): string {
+export function sessionTypeDir(type: "calibration" | "inference" | "simulation"): string {
   return path.join(paths.sessionsRoot, type);
 }
 
@@ -66,7 +60,6 @@ export async function ensureStorageLayout(): Promise<void> {
     ensureDir(paths.sessionsRoot),
     ensureDir(paths.logsRoot),
     ensureDir(sessionTypeDir("calibration")),
-    ensureDir(sessionTypeDir("training")),
     ensureDir(sessionTypeDir("inference")),
     ensureDir(sessionTypeDir("simulation"))
   ]);
@@ -79,7 +72,6 @@ export async function ensureProfileLayout(profileId: string): Promise<void> {
     ensureDir(profileProcessedDir(profileId)),
     ensureDir(profileSegmentedDir(profileId)),
     ensureDir(profileModelsDir(profileId)),
-    ensureDir(profileTrainingDir(profileId)),
     ensureDir(profileInferenceDir(profileId))
   ]);
 }

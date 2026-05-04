@@ -8,7 +8,7 @@ export default async function HistoryPage() {
   const sessions = await listSessionRecords();
 
   return (
-    <AppShell title="Recent Sessions" subtitle="Review calibration, training, and Session history from local manifests">
+    <AppShell title="Recent Sessions" subtitle="Review local Session history from local manifests">
       <section className="kh-panel p-5">
         <SessionTable sessions={sessions} />
       </section>

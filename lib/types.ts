@@ -1,6 +1,6 @@
-export type ProfileStatus = "needs_calibration" | "training" | "ready";
+export type ProfileStatus = "needs_calibration" | "ready";
 
-export type SessionType = "calibration" | "training" | "inference" | "simulation";
+export type SessionType = "calibration" | "inference" | "simulation";
 
 export type SignalStatus = "idle" | "uploading" | "preprocessing" | "segmenting" | "running" | "complete" | "error";
 
@@ -48,25 +48,11 @@ export interface SessionRecord {
   created_at: string;
   status: "success" | "failed";
   signal_status: SignalStatus;
-  source: "edf_upload" | "simulated" | "demo";
+  source: "edf_upload" | "simulated";
   input_path?: string;
   output_path?: string;
   predicted_sentence?: string;
   details?: Record<string, unknown>;
-}
-
-export interface TrainingRequest {
-  profile_id: string;
-  calibration_edf_paths: string[];
-}
-
-export interface TrainingResult {
-  profile_id: string;
-  session_id: string;
-  model_path: string;
-  metrics_path: string;
-  status: "success" | "failed";
-  message: string;
 }
 
 export interface InferenceRequest {
@@ -75,7 +61,6 @@ export interface InferenceRequest {
   top_k_words?: number;
   retrieval_topk?: number;
   stage2_mode?: Stage2Mode;
-  use_demo_files?: boolean;
 }
 
 export interface TimelineStep {
@@ -219,12 +204,4 @@ export interface UploadEdfResult {
   role: "edf" | "marker";
   purpose: "calibration" | "inference";
   profile_id: string;
-}
-
-export interface DemoLoadResult {
-  profile: ProfileManifest;
-  model: ModelInfo;
-  model_path: string;
-  edf_path: string;
-  marker_csv_path: string;
 }

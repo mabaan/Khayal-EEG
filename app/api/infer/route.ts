@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
       top_k_words?: number;
       retrieval_topk?: number;
       stage2_mode?: Stage2Mode;
-      use_demo_files?: boolean;
     };
 
     const edfPath = payload.edf_path?.trim() ?? "";
@@ -39,8 +38,7 @@ export async function POST(request: NextRequest) {
         marker_csv_path: payload.marker_csv_path?.trim() || undefined,
         top_k_words: payload.top_k_words ?? 8,
         retrieval_topk: payload.retrieval_topk ?? 5,
-        stage2_mode: payload.stage2_mode ?? "qwen",
-        use_demo_files: Boolean(payload.use_demo_files)
+        stage2_mode: payload.stage2_mode ?? "qwen"
       })
     });
 
@@ -52,7 +50,7 @@ export async function POST(request: NextRequest) {
         type: "inference",
         status: "failed",
         signal_status: "error",
-        source: payload.use_demo_files ? "demo" : "edf_upload",
+        source: "edf_upload",
         input_path: edfPath,
         details: { result }
       });
@@ -64,7 +62,7 @@ export async function POST(request: NextRequest) {
       type: "inference",
       status: "success",
       signal_status: "complete",
-      source: payload.use_demo_files ? "demo" : "edf_upload",
+      source: "edf_upload",
       input_path: edfPath,
       predicted_sentence: result.prediction.arabic,
       details: {

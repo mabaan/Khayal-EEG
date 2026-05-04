@@ -3,17 +3,17 @@
     "Welcome to Khayal Local.",
     "This app runs fully on your machine.",
     "Before Session decoding, we need your personal Stage 1 model.",
-    "Follow calibration to upload raw EDF files, then train your profile."
+    "Upload a personalized checkpoint before running a Session."
   ],
   "calibration_steps": [
     "Sit still and reduce movement artifacts.",
     "Follow each sentence prompt exactly in order.",
     "For each word event, wait during rest and stimulus, then imagine during the imagination phase.",
-    "Upload the raw EDF files after recording."
+    "Use the Session page when you are ready to decode a local EDF recording."
   ],
   "session_notes": [
-    "Session mode supports the bundled demo case or custom EDF upload.",
-    "Live EEG streaming is not enabled in v1.",
+    "Session mode supports local EDF upload.",
+    "Live EEG streaming is not enabled.",
     "Prediction uses fixed Diff-E with deterministic retrieval and optional local Qwen refinement."
   ]
 }

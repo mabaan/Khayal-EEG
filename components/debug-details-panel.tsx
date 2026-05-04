@@ -27,7 +27,7 @@ export function DebugDetailsPanel({ profile, result }: DebugDetailsPanelProps) {
             <p><span className="font-semibold text-slate-900">Stage 2 mode:</span> {result?.stage2.mode ?? "-"}</p>
             <p><span className="font-semibold text-slate-900">Stage 2 device:</span> {result?.stage2.device ?? "-"}</p>
             <p><span className="font-semibold text-slate-900">Retrieval top-k:</span> {result?.stage2.retrieval_topk ?? "-"}</p>
-            <p><span className="font-semibold text-slate-900">Transformer retrieval:</span> {result?.stage2.transformer_retrieval_used ? "Used" : "Posterior-only fallback"}</p>
+            <p><span className="font-semibold text-slate-900">Local retrieval:</span> {result?.stage2.transformer_retrieval_used ? "Used" : "Fallback used"}</p>
             <p><span className="font-semibold text-slate-900">Total timing:</span> {result?.timing.total_ms ?? 0} ms</p>
           </div>
         </div>

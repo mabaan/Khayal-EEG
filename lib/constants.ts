@@ -52,7 +52,6 @@ export const NAV_ITEMS = [
   { href: "/", label: "Home" },
   { href: "/setup", label: "Setup" },
   { href: "/calibration", label: "Calibration" },
-  { href: "/training", label: "Training" },
   { href: "/inference", label: "Session" },
   { href: "/history", label: "Recent Sessions" },
   { href: "/settings", label: "Settings" }

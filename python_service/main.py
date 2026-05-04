@@ -49,7 +49,7 @@ def health() -> HealthResponse:
     if not ollama_ok:
         message += " Qwen/Ollama unavailable; retrieval rank-1 fallback is ready."
     if not cuda_ok:
-        message += " CUDA unavailable; transformer retrieval will run on CPU."
+        message += " CUDA unavailable; local retrieval will run on CPU."
     return HealthResponse(
         status=status,
         message=message,
@@ -122,7 +122,6 @@ def infer(request: InferRequest) -> InferResponse:
         top_k_words=request.top_k_words,
         retrieval_topk=request.retrieval_topk,
         stage2_mode=request.stage2_mode,
-        use_demo_files=request.use_demo_files,
     )
     return InferResponse(**result)
 

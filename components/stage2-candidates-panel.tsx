@@ -48,16 +48,6 @@ export function Stage2CandidatesPanel({ stage2, prediction }: Stage2CandidatesPa
                   {candidate.arabic}
                 </p>
                 <p className="mt-1 text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">{candidate.romanized}</p>
-
-                <div className="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-3">
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">Posterior: {candidate.posterior_score.toFixed(3)}</p>
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                    Transformer: {typeof candidate.transformer_score === "number" ? candidate.transformer_score.toFixed(3) : "Unavailable"}
-                  </p>
-                  <p className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                    Slot probs: {candidate.word_probabilities.map((value) => value.toFixed(3)).join(" / ")}
-                  </p>
-                </div>
               </div>
             );
           })

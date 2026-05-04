@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { ensureDir, ensureStorageLayout, profileInferenceDir, profileTrainingDir, sessionTypeDir } from "@/lib/local-paths";
+import { ensureDir, ensureStorageLayout, profileInferenceDir, sessionTypeDir } from "@/lib/local-paths";
 import type { SessionRecord, SessionType } from "@/lib/types";
 
 function nowIso(): string {
@@ -38,10 +38,6 @@ export async function createSessionRecord(
   const flatSessionPath = path.join(sessionTypeDir(partial.type), `${record.session_id}.json`);
   await writeJson(flatSessionPath, record);
 
-  if (partial.type === "training") {
-    await writeJson(path.join(profileTrainingDir(partial.profile_id), "train_manifest.json"), record);
-  }
-
   if (partial.type === "inference" || partial.type === "simulation") {
     await writeJson(path.join(profileInferenceDir(partial.profile_id), "inference_manifest.json"), record);
   }
@@ -51,7 +47,7 @@ export async function createSessionRecord(
 
 export async function listSessionRecords(profileId?: string): Promise<SessionRecord[]> {
   await ensureStorageLayout();
-  const sessionTypes: SessionType[] = ["calibration", "training", "inference", "simulation"];
+  const sessionTypes: SessionType[] = ["calibration", "inference", "simulation"];
   const records: SessionRecord[] = [];
 
   for (const type of sessionTypes) {

@@ -18,9 +18,6 @@ LABELS_PATH = DATA_DIR / "labels.json"
 APP_DEFAULTS_PATH = DATA_DIR / "app_defaults.json"
 
 BASE_MODEL_DEFAULT_PATH = BASE_MODELS_DIR / "diff_e_base.pt"
-DEMO_MODEL_PATH = STORAGE_DIR / "demo_models" / "S5_classifier_A.pt"
-DEMO_EDF_PATH = STORAGE_DIR / "demo_edf" / "S5_C7_T2" / "Sentence_7_EPOCX_570600_2025.11.12T04.15.10.08.00.edf"
-DEMO_MARKER_PATH = STORAGE_DIR / "demo_edf" / "S5_C7_T2" / "Sentence_7_EPOCX_570600_2025.11.12T04.15.10.08.00_intervalMarker.csv"
 STAGE2_CACHE_DIR = STORAGE_DIR / "stage2_cache"
 
 SAMPLING_RATE_HZ = 256

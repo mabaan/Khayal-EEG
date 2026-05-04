@@ -11,22 +11,12 @@ const actions = [
   {
     href: "/setup",
     title: "Setup Profile",
-    description: "Create/select profile and confirm base model path."
-  },
-  {
-    href: "/calibration",
-    title: "Calibration Upload",
-    description: "Upload raw EDF files using the fixed prompt protocol."
-  },
-  {
-    href: "/training",
-    title: "Train Stage 1",
-    description: "Fine-tune personalized Diff-E checkpoint."
+    description: "Create or select the active local profile."
   },
   {
     href: "/inference",
     title: "Start Session",
-    description: "Decode sentence with fixed Diff-E + RAG flow."
+    description: "Decode a sentence from a local EDF recording."
   }
 ];
 
@@ -40,7 +30,7 @@ export default async function HomePage() {
   const recent = sessions.slice(0, 8);
 
   return (
-    <AppShell title="Home" subtitle="Local-first imagined speech workflow with one fixed production path">
+    <AppShell title="Home" subtitle="Local-first imagined speech workflow for Khayal sessions">
       <section className="kh-panel-strong mb-5 p-5 md:p-6">
         <p className="kh-kicker">Overview</p>
         <div className="mt-3 grid gap-3 md:grid-cols-3">

@@ -6,7 +6,6 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
-from .config import DEMO_EDF_PATH, DEMO_MARKER_PATH, DEMO_MODEL_PATH
 from .edf_trial_processor import process_trial_edf
 from .logging_utils import append_log
 from .stage1_model_adapter import Stage1DiffEAdapter
@@ -47,14 +46,14 @@ def _new_timeline() -> List[Dict[str, object]]:
         },
         {
             "id": "posterior_evidence",
-            "label": "Building Top-k posterior evidence",
+            "label": "Building word evidence",
             "status": "pending",
             "detail": None,
             "warnings": [],
         },
         {
             "id": "retrieval",
-            "label": "Building transformer candidate shortlist",
+            "label": "Building sentence shortlist",
             "status": "pending",
             "detail": None,
             "warnings": [],
@@ -130,16 +129,15 @@ def run_inference_pipeline(
     top_k_words: int = 8,
     retrieval_topk: int = 5,
     stage2_mode: str = "qwen",
-    use_demo_files: bool = False,
 ) -> Dict[str, object]:
     ensure_profile_layout(profile_id)
     session_id = _session_id("infer")
     timeline = _new_timeline()
     started = time.perf_counter()
 
-    resolved_model_path = str(DEMO_MODEL_PATH if use_demo_files else Path(user_model_path))
-    resolved_edf_path = str(DEMO_EDF_PATH if use_demo_files else Path(edf_path))
-    resolved_marker_path = str(DEMO_MARKER_PATH) if use_demo_files else marker_csv_path
+    resolved_model_path = str(Path(user_model_path))
+    resolved_edf_path = str(Path(edf_path))
+    resolved_marker_path = marker_csv_path
 
     if not resolved_model_path:
         raise ValueError("A personalized Stage 1 checkpoint is required for inference.")
@@ -192,7 +190,7 @@ def run_inference_pipeline(
             timeline,
             "retrieval",
             "complete",
-            detail=f"{len(stage2_output['candidate_sentences'])} transformer-ranked candidates returned",
+            detail=f"{len(stage2_output['candidate_sentences'])} candidates returned",
         )
         _set_step(
             timeline,

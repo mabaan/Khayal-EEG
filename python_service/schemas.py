@@ -37,7 +37,6 @@ class InferRequest(BaseModel):
     top_k_words: int = 8
     retrieval_topk: int = 5
     stage2_mode: Literal["qwen"] = "qwen"
-    use_demo_files: bool = False
 
 
 class TimelineStep(BaseModel):

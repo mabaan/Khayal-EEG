@@ -55,8 +55,8 @@ const OPTIMISTIC_STEPS: Array<Pick<TimelineStep, "id" | "label">> = [
   { id: "segmenting", label: "Segmenting 3 imagination windows" },
   { id: "building_tensors", label: "Building 19-channel tensors" },
   { id: "stage1", label: "Running Stage 1 DiffE word classifier" },
-  { id: "posterior_evidence", label: "Building Top-k posterior evidence" },
-  { id: "retrieval", label: "Building transformer candidate shortlist" },
+  { id: "posterior_evidence", label: "Building word evidence" },
+  { id: "retrieval", label: "Building sentence shortlist" },
   { id: "reranking", label: "Running Qwen/Ollama sentence selection" },
   { id: "decoded", label: "Final sentence decoded" }
 ];
@@ -268,8 +268,7 @@ export default function InferencePage() {
         marker_csv_path: markerAsset?.path,
         top_k_words: 8,
         retrieval_topk: STAGE2_TOP_K,
-        stage2_mode: stage2Mode,
-        use_demo_files: false
+        stage2_mode: stage2Mode
       });
       if (optimisticTimer.current) {
         window.clearInterval(optimisticTimer.current);
@@ -320,7 +319,7 @@ export default function InferencePage() {
       tone: ollamaAvailable ? "border-emerald-200 bg-emerald-50/60" : "border-slate-200 bg-white"
     },
     {
-      label: "transformers",
+      label: "Local Retrieval",
       value: transformersAvailable === undefined ? "Unchecked" : transformersAvailable ? "Installed" : "Not installed",
       tone: transformersAvailable ? "border-emerald-200 bg-emerald-50/60" : "border-slate-200 bg-white"
     },
@@ -338,21 +337,21 @@ export default function InferencePage() {
 
   return (
     <AppShell
-      title="Khayal Live Inference Demo"
-      subtitle="Decode imagined Arabic speech from EDF trials using a real Stage 1 DiffE checkpoint, transformer retrieval, and Qwen/Ollama sentence selection."
+      title="Khayal Session"
+      subtitle="Decode imagined Arabic speech from EDF trials using a personalized Stage 1 checkpoint and local sentence selection."
     >
       <section className="kh-panel-strong mb-5 px-5 py-5 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl">
-            <p className="kh-kicker">Demo Overview</p>
-            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Local-only thesis defense dashboard</h2>
+            <p className="kh-kicker">Session Overview</p>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-900">Local-only inference workspace</h2>
             <p className="mt-2 text-sm text-slate-600">
-              The active profile stays in control. Upload a local checkpoint and EDF trial, then run the full inference pipeline end-to-end.
+              The active profile stays in control. Upload a local checkpoint and EDF trial, then run sentence decoding end-to-end.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="kh-chip">12-Sentence Catalog</span>
-            <span className="kh-chip">Transformer Retrieval + Qwen</span>
+            <span className="kh-chip">Retrieval + Qwen</span>
           </div>
         </div>
       </section>
@@ -395,10 +394,10 @@ export default function InferencePage() {
                 <div className="min-w-0 flex-1">
                   <p className="kh-kicker">Stage 2 Decoder</p>
                   <h3 className="mt-1 max-w-[18ch] text-[1.7rem] font-extrabold leading-tight tracking-tight text-slate-900">
-                    Transformer Retrieval + Qwen/Ollama Selection
+                    Retrieval + Qwen/Ollama Selection
                   </h3>
                   <p className="mt-3 max-w-[34ch] text-sm leading-6 text-slate-600">
-                    Transformer retrieval ranks the 12-sentence catalog. Qwen/Ollama then chooses the final sentence, with rank-1 fallback if selection fails.
+                    Local retrieval ranks the 12-sentence catalog. Qwen/Ollama then chooses the final sentence, with rank-1 fallback if selection fails.
                   </p>
                 </div>
                 <StatusBadge label="Qwen Mode" tone="good" />

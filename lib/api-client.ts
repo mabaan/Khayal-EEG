@@ -1,11 +1,9 @@
 import type {
-  DemoLoadResult,
   InferenceResult,
   InferenceRequest,
   ProfileManifest,
   SessionRecord,
   SimulationSnapshot,
-  TrainingResult,
   UploadEdfResult,
   UploadModelResult
 } from "@/lib/types";
@@ -41,24 +39,6 @@ export async function selectProfile(profileId: string): Promise<{ profile: Profi
   return parseResponse(response);
 }
 
-export async function updateBaseModelPath(path: string): Promise<{ profile: ProfileManifest }> {
-  const response = await fetch("/api/model/load", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ checkpoint_path: path })
-  });
-  return parseResponse(response);
-}
-
-export async function startTraining(calibrationEdfPaths: string[]): Promise<TrainingResult> {
-  const response = await fetch("/api/train", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ calibration_edf_paths: calibrationEdfPaths })
-  });
-  return parseResponse(response);
-}
-
 export async function runInference(payload: InferenceRequest): Promise<InferenceResult> {
   const response = await fetch("/api/infer", {
     method: "POST",
@@ -89,11 +69,6 @@ export async function uploadEegAsset(
     form.append("group_id", groupId);
   }
   const response = await fetch("/api/edf/upload", { method: "POST", body: form });
-  return parseResponse(response);
-}
-
-export async function loadDemoCase(): Promise<DemoLoadResult> {
-  const response = await fetch("/api/demo/load", { method: "POST" });
   return parseResponse(response);
 }
 

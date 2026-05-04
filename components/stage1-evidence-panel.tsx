@@ -10,7 +10,7 @@ export function Stage1EvidencePanel({ stage1 }: Stage1EvidencePanelProps) {
       <div className="mb-4">
         <p className="kh-kicker">Stage 1 Evidence</p>
         <h3 className="mt-1 text-lg font-bold text-slate-900">Top-k Word Evidence Per Slot</h3>
-        <p className="mt-2 text-sm text-slate-600">Stage 2 uses these full posterior distributions instead of only the top-1 words.</p>
+        <p className="mt-2 text-sm text-slate-600">Stage 2 uses the full word evidence instead of only the top-1 words.</p>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">

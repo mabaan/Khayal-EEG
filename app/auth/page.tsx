@@ -134,7 +134,7 @@ export default function AuthPage() {
             <button
               type="button"
               className="text-sky-700 underline underline-offset-4 hover:text-sky-800"
-              onClick={() => setError("Password reset is not enabled in local-only v1.")}
+              onClick={() => setError("Password reset is not enabled in local-only mode.")}
             >
               Forgot Password?
             </button>

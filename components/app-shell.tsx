@@ -26,7 +26,6 @@ export function AppShell({ title, subtitle, children }: AppShellProps) {
               {subtitle ? <p className="kh-subtext mt-2 max-w-3xl">{subtitle}</p> : null}
             </div>
             <div className="flex items-center gap-2">
-              <span className="kh-chip">v1 Fixed Pipeline</span>
               <LogoutButton />
             </div>
           </header>

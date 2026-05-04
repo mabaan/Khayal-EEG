@@ -4,7 +4,7 @@ export function modelReadyLabel(profile: ProfileManifest | null): string {
   if (!profile) {
     return "No Active Profile";
   }
-  return profile.model_ready ? "Model Ready" : "Needs Training";
+  return profile.model_ready ? "Model Ready" : "Not Ready";
 }
 
 export function signalStatusLabel(status: SignalStatus): string {
